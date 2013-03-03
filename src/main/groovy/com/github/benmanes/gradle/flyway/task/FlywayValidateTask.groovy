@@ -16,7 +16,6 @@
 package com.github.benmanes.gradle.flyway.task
 
 import com.googlecode.flyway.core.Flyway
-import org.gradle.api.tasks.TaskAction
 
 /**
  * @author Ben Manes (ben.manes@gmail.com)
@@ -27,9 +26,7 @@ class FlywayValidateTask extends AbstractFlywayTask {
     description = 'Validates the applied migrations against the ones available on the classpath.'
   }
 
-  @TaskAction
-  def info() {
-    def flyway = create()
+  def run(flyway) {
     flyway.validate()
   }
 }

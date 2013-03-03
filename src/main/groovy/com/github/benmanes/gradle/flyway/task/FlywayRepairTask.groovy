@@ -16,7 +16,6 @@
 package com.github.benmanes.gradle.flyway.task
 
 import com.googlecode.flyway.core.Flyway
-import org.gradle.api.tasks.TaskAction
 
 /**
  * @author Ben Manes (ben.manes@gmail.com)
@@ -27,9 +26,7 @@ class FlywayRepairTask extends AbstractFlywayTask {
     description = 'Repairs the Flyway metadata table after a failed migration.'
   }
 
-  @TaskAction
-  def info() {
-    def flyway = create()
+  def run(flyway) {
     flyway.repair()
   }
 }

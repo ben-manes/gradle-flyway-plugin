@@ -6,10 +6,8 @@
 This plugin is hosted on the Maven Central Repository. All actions are logged at the `info` level.
 
 See Flyway's [command-line arguments](http://flywaydb.org/documentation/commandline) for the
-configuration reference. The plugin differs by havings lists for the `schemas` and `locations`
-settings, and a map for the `placeholders` setting.
-
-The `locations` must be present on the classpath, which should be specified in the `buildscript`.
+configuration reference. The `locations` must be present on the classpath, which should be
+specified in the `buildscript`.
 
 ```groovy
 apply plugin: 'flyway'
@@ -64,11 +62,17 @@ flyway {
   schemas = [ 'schema1', 'schema2', 'schema3' ]
   initialVersion = '1.0'
   initialDescription = 'Base Migration'
-  locations = [ 'com.mycompany.project.migration', 'database/migrations' ]
+  locations = [ 
+    'com.mycompany.project.migration',
+    'database/migrations'
+  ]
   sqlMigrationPrefix = 'Migration-'
   sqlMigrationSuffix = '-OK.sql'
   encoding = 'ISO-8859-1'
-  placeholders = [ 'aplaceholder': 'value', 'otherplaceholder': 'value123' ]
+  placeholders = [ 
+    'aplaceholder': 'value',
+    'otherplaceholder': 'value123'
+  ]
   placeholderPrefix = '#['
   placeholderSuffix = ']'
   target = '5.1'

@@ -17,6 +17,7 @@ package com.github.benmanes.gradle.flyway.task;
 
 import com.googlecode.flyway.core.Flyway
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.TaskAction
 
 /**
  * A base class for all flyway tasks.
@@ -28,6 +29,14 @@ abstract class AbstractFlywayTask extends DefaultTask {
   AbstractFlywayTask() {
     group = 'Flyway'
   }
+
+  @TaskAction
+  def runTask() {
+    run(create())
+  }
+
+  /** Executes the task's custom behavior. */
+  def abstract run(flyway)
 
   /** Creates a new, configured flyway instance */
   protected Flyway create() {

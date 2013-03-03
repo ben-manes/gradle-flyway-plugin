@@ -16,7 +16,6 @@
 package com.github.benmanes.gradle.flyway.task
 
 import com.googlecode.flyway.core.Flyway
-import org.gradle.api.tasks.TaskAction
 
 /**
  * @author Ben Manes (ben.manes@gmail.com)
@@ -27,9 +26,7 @@ class FlywayMigrateTask extends AbstractFlywayTask {
     description = 'Migrates the schema to the latest version.'
   }
 
-  @TaskAction
-  def info() {
-    def flyway = create()
+  def run(flyway) {
     int applied = flyway.migrate()
     didWork = (applied > 0)
   }

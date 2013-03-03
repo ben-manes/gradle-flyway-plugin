@@ -16,7 +16,7 @@
 package com.github.benmanes.gradle.flyway.task
 
 import com.googlecode.flyway.core.Flyway
-import org.gradle.api.tasks.TaskAction
+import com.googlecode.flyway.core.info.MigrationInfoDumper
 
 /**
  * @author Ben Manes (ben.manes@gmail.com)
@@ -27,28 +27,8 @@ class FlywayInfoTask extends AbstractFlywayTask {
     description = 'Creates and initializes the metadata table in the schema.'
   }
 
-  @TaskAction
-  def info() {
-    def flyway = create()
+  def run(flyway) {
     def all = flyway.info().all()
-
-    println '----- Flyway Info -----'
-    if (all.length == 0) {
-      println 'No migrations found'
-    } else {
-      all.eachWithIndex { info, idx ->
-        if (idx != 0) {
-          println ''
-        }
-        println(
-          """|Version: ${info.version}
-             |Description: ${info.description}
-             |Script: ${info.script}
-             |State: ${info.state}""".stripMargin())
-        if (info.state.isApplied()) {
-          println "Installed On: ${info.installedOn}"
-        }
-      }
-    }
+    println MigrationInfoDumper.dumpToAsciiTable(all)
   }
 }
