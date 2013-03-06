@@ -60,8 +60,9 @@ flyway {
   schemas = [ 'schema1', 'schema2', 'schema3' ]
   initialVersion = '1.0'
   initialDescription = 'Base Migration'
-  locations = [ 
-    'com.mycompany.project.migration',
+  locations = [
+    'classpath:com.mycompany.project.migration',
+    'filesystem:/sql-migrations',
     'database/migrations'
   ]
   sqlMigrationPrefix = 'Migration-'

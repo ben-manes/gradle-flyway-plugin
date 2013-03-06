@@ -59,11 +59,11 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
   private def addBasicTypesTo(props) {
     project.flyway.properties
-    .findAll { name, value ->
-      (value instanceof String) || (value instanceof Boolean)
-    }.each { name, value ->
-      props.setProperty("flyway.${name}", "${value}")
-    }
+      .findAll { name, value ->
+        (value instanceof String) || (value instanceof Boolean)
+      }.each { name, value ->
+        props.setProperty("flyway.${name}", "${value}")
+      }
   }
 
   private def addSchemasTo(props) {
