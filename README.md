@@ -6,8 +6,8 @@
 This plugin is hosted on the Maven Central Repository. All actions are logged at the `info` level.
 
 See Flyway's [command-line arguments](http://flywaydb.org/documentation/commandline) for the
-configuration reference. The `locations` must be present on the classpath, which should be
-specified in the `buildscript`.
+configuration reference. The project's `sourceSets.main.resources` is added to the `locations`
+automatically if the `java` plugin is detected. 
 
 ```groovy
 apply plugin: 'flyway'
@@ -19,14 +19,12 @@ buildscript {
 
   dependencies {
     classpath 'com.h2database:h2:1.3.170'
-    classpath 'com.github.ben-manes:gradle-flyway-plugin:0.1'
-    classpath files('src/main/resources', 'src/test/resources')
+    classpath 'com.github.ben-manes:gradle-flyway-plugin:0.2'
   }
 }
 
 flyway {
-  url = "jdbc:h2:${buildDir}/db/flyway"    
-  driver = 'org.h2.Driver'
+  url = "jdbc:h2:${buildDir}/db/flyway"
 }
 ```
 

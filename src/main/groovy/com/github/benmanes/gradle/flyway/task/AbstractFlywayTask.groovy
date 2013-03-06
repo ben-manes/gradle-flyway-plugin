@@ -43,26 +43,10 @@ abstract class AbstractFlywayTask extends DefaultTask {
     Flyway flyway = new Flyway()
     def props = new Properties()
 
-    project.flyway.properties
-      .findAll { name, value ->
-        (value instanceof String) || (value instanceof Boolean)
-      }.each { name, value ->
-        props.setProperty("flyway.${name}", value)
-      }
-
-    def schemas = project.flyway.schemas.join(',')
-    if (!schemas.isEmpty()) {
-      props.setProperty('flyway.schemas', schemas)
-    }
-
-    def locations = project.flyway.locations.join(',')
-    if (!locations.isEmpty()) {
-      props.setProperty('flyway.locations', locations)
-    }
-
-    project.flyway.placeholders.each { name, value ->
-      props.setProperty("flyway.placeholders.${name}", value)
-    }
+    addSchemasTo(props)
+    addLocationsTo(props)
+    addBasicTypesTo(props)
+    addPlaceholdersTo(props)
 
     logger.info 'Flyway configuration:'
     props.each { name, value ->
@@ -71,5 +55,38 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
     flyway.configure(props)
     flyway
+  }
+
+  private def addBasicTypesTo(props) {
+    project.flyway.properties
+    .findAll { name, value ->
+      (value instanceof String) || (value instanceof Boolean)
+    }.each { name, value ->
+      props.setProperty("flyway.${name}", "${value}")
+    }
+  }
+
+  private def addSchemasTo(props) {
+    def schemas = project.flyway.schemas.join(',')
+    if (!schemas.isEmpty()) {
+      props.setProperty('flyway.schemas', schemas)
+    }
+  }
+
+  private def addLocationsTo(props) {
+    def locations = project.flyway.locations
+    if (project.plugins.hasPlugin('java')) {
+      locations += project.sourceSets.main.resources.srcDirs
+        .collect { file -> "filesystem:${file.path}" }
+    }
+    if (!locations.isEmpty()) {
+      props.setProperty('flyway.locations', locations.join(','))
+    }
+  }
+
+  private def addPlaceholdersTo(props) {
+    project.flyway.placeholders.each { name, value ->
+      props.setProperty("flyway.placeholders.${name}", value)
+    }
   }
 }

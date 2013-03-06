@@ -22,6 +22,7 @@ package com.github.benmanes.gradle.flyway
  * @see http://flywaydb.org/documentation/commandline
  */
 public class FlywayExtension {
+
   /** The fully qualified classname of the jdbc driver to use to connect to the database */
   String driver
 
@@ -47,8 +48,13 @@ public class FlywayExtension {
   String initialDescription
 
   /**
-   * The list of locations on the classpath to scan recursively for migrations.
-   * Locations may contain both sql and java-based migrations
+   * Locations to scan recursively for migrations. The location type is determined by its prefix.
+   *
+   * <tt>Unprefixed locations or locations starting with classpath:</tt>
+   * point to a package on the classpath and may contain both sql and java-based migrations.
+   *
+   * <tt>Locations starting with filesystem:</tt>
+   * point to a directory on the filesystem and may only contain sql migrations.
    */
   List<String> locations
 
