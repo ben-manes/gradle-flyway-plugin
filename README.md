@@ -43,7 +43,7 @@ Migrates the schema to the latest version.
 Validates the applied migrations against the ones available on the classpath.
 
 ### `flywayInfo`
-Creates and initializes the metadata table in the schema.
+Prints the details and status information about all the migrations.
 
 ### `flywayRepair`
 Repairs the Flyway metadata table after a failed migration.

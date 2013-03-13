@@ -24,7 +24,7 @@ import com.googlecode.flyway.core.info.MigrationInfoDumper
 class FlywayInfoTask extends AbstractFlywayTask {
 
   FlywayInfoTask() {
-    description = 'Creates and initializes the metadata table in the schema.'
+    description = 'Prints the details and status information about all the migrations.'
   }
 
   def run(flyway) {
