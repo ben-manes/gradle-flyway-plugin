@@ -19,7 +19,7 @@ buildscript {
 
   dependencies {
     classpath 'com.h2database:h2:1.3.170'
-    classpath 'com.github.ben-manes:gradle-flyway-plugin:0.2'
+    classpath 'com.github.ben-manes:gradle-flyway-plugin:0.3'
   }
 }
 

@@ -15,7 +15,6 @@
  */
 package com.github.benmanes.gradle.flyway.task
 
-import com.googlecode.flyway.core.Flyway
 import com.googlecode.flyway.core.info.MigrationInfoDumper
 
 /**

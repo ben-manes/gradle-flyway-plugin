@@ -97,9 +97,22 @@ public class FlywayExtension {
    */
   Boolean initOnMigrate
 
+  /** The dependencies that all flyway tasks depend on. */
+  private List<Object> dependsOn
+
   public FlywayExtension() {
     schemas = []
     locations = []
+    dependsOn = []
     placeholders = [:]
+  }
+
+  /** @see http://www.gradle.org/docs/current/javadoc/org/gradle/api/Task.html#dependencies */
+  def dependsOn(Object... paths) {
+    dependsOn += paths
+  }
+
+  def getDependsOn() {
+    dependsOn
   }
 }

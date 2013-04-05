@@ -17,6 +17,7 @@ package com.github.benmanes.gradle.flyway.task;
 
 import com.googlecode.flyway.core.Flyway
 import org.gradle.api.DefaultTask
+import org.gradle.api.Task
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -28,6 +29,13 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
   AbstractFlywayTask() {
     group = 'Flyway'
+    project.afterEvaluate {
+      def flywayDependsOn = project.flyway.dependsOn
+      if (isJavaProject()) {
+        flywayDependsOn += project.tasks.processResources
+      }
+      this.dependsOn(flywayDependsOn)
+    }
   }
 
   @TaskAction
@@ -39,22 +47,29 @@ abstract class AbstractFlywayTask extends DefaultTask {
   def abstract run(flyway)
 
   /** Creates a new, configured flyway instance */
-  protected Flyway create() {
-    Flyway flyway = new Flyway()
-    def props = new Properties()
+  protected def create() {
+    if (isJavaProject()) {
+      addClassesDirToClassLoader()
+    }
 
-    addSchemasTo(props)
-    addLocationsTo(props)
-    addBasicTypesTo(props)
-    addPlaceholdersTo(props)
-
+    def props = getFlywayProperties()
     logger.info 'Flyway configuration:'
     props.each { name, value ->
       logger.info " - ${name}: ${value}"
     }
 
+    def flyway = new Flyway()
     flyway.configure(props)
     flyway
+  }
+
+  private def getFlywayProperties() {
+    def props = new Properties()
+    addSchemasTo(props)
+    addLocationsTo(props)
+    addBasicTypesTo(props)
+    addPlaceholdersTo(props)
+    props
   }
 
   private def addBasicTypesTo(props) {
@@ -75,18 +90,48 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
   private def addLocationsTo(props) {
     def locations = project.flyway.locations
-    if (project.plugins.hasPlugin('java')) {
-      locations += project.sourceSets.main.resources.srcDirs
-        .collect { file -> "filesystem:${file.path}" }
+    if (locations.isEmpty()) {
+      locations += defaultLocations()
     }
     if (!locations.isEmpty()) {
       props.setProperty('flyway.locations', locations.join(','))
     }
   }
 
+  private def defaultLocations() {
+    def defaults = []
+    if (isJavaProject()) {
+      def resources = project.sourceSets.main.output.resourcesDir.path
+      defaults += [ "filesystem:${resources}" ]
+    }
+    if (hasClasses()) {
+      defaults += [ "classpath:db/migration" ]
+    }
+    defaults
+  }
+
   private def addPlaceholdersTo(props) {
     project.flyway.placeholders.each { name, value ->
       props.setProperty("flyway.placeholders.${name}", value)
     }
+  }
+
+  protected boolean isJavaProject() {
+    project.plugins.hasPlugin('java')
+  }
+
+  private def addClassesDirToClassLoader() {
+    def classesUrl = project.sourceSets.main.output.classesDir.toURI().toURL()
+    def classLoader = Thread.currentThread().getContextClassLoader()
+    if (hasClasses() && !classLoader.getURLs().contains(classesUrl)) {
+      classLoader.addURL(classesUrl)
+      logger.info "Added ${classesUrl} to classloader"
+    }
+  }
+
+  private def hasClasses() {
+    def classesDir = project.sourceSets.main.output.classesDir
+    def classesUrl = classesDir.toURI().toURL()
+    (classesDir.list()?.length ?: 0) > 0
   }
 }
