@@ -15,6 +15,7 @@
  */
 package com.github.benmanes.gradle.flyway.task
 
+import com.googlecode.flyway.core.Flyway
 import com.googlecode.flyway.core.info.MigrationInfoDumper
 
 /**
@@ -26,7 +27,7 @@ class FlywayInfoTask extends AbstractFlywayTask {
     description = 'Prints the details and status information about all the migrations.'
   }
 
-  def run(flyway) {
+  def run(Flyway flyway) {
     def all = flyway.info().all()
     println MigrationInfoDumper.dumpToAsciiTable(all)
   }

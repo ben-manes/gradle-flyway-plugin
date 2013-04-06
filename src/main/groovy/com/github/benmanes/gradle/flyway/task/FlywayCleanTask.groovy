@@ -15,6 +15,8 @@
  */
 package com.github.benmanes.gradle.flyway.task
 
+import com.googlecode.flyway.core.Flyway
+
 /**
  * @author Ben Manes (ben.manes@gmail.com)
  */
@@ -24,7 +26,7 @@ class FlywayCleanTask extends AbstractFlywayTask {
     description = 'Drops all objects in the configured schemas.'
   }
 
-  def run(flyway) {
+  def run(Flyway flyway) {
     flyway.clean()
   }
 }

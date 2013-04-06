@@ -16,8 +16,9 @@
 package com.github.benmanes.gradle.flyway.task;
 
 import com.googlecode.flyway.core.Flyway
+import com.googlecode.flyway.core.api.MigrationVersion
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource
 import org.gradle.api.DefaultTask
-import org.gradle.api.Task
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -30,11 +31,11 @@ abstract class AbstractFlywayTask extends DefaultTask {
   AbstractFlywayTask() {
     group = 'Flyway'
     project.afterEvaluate {
-      def flywayDependsOn = project.flyway.dependsOn
+      def dependsOnTasks = project.flyway.dependsOnTasks
       if (isJavaProject()) {
-        flywayDependsOn += project.tasks.processResources
+        dependsOnTasks += project.tasks.processResources
       }
-      this.dependsOn(flywayDependsOn)
+      this.dependsOn(dependsOnTasks)
     }
   }
 
@@ -44,7 +45,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
   }
 
   /** Executes the task's custom behavior. */
-  def abstract run(flyway)
+  def abstract run(Flyway flyway)
 
   /** Creates a new, configured flyway instance */
   protected def create() {
@@ -52,68 +53,127 @@ abstract class AbstractFlywayTask extends DefaultTask {
       addClassesDirToClassLoader()
     }
 
-    def props = getFlywayProperties()
     logger.info 'Flyway configuration:'
-    props.each { name, value ->
-      logger.info " - ${name}: ${value}"
-    }
-
     def flyway = new Flyway()
-    flyway.configure(props)
+    addDataSourceTo(flyway)
+    addMetadataTable(flyway)
+    addSchemasTo(flyway)
+    addInitVersionTo(flyway)
+    addLocationsTo(flyway)
+    addSqlMigrationSettingsTo(flyway)
+    addTargetVersionTo(flyway)
+    addValidationSettingsTo(flyway)
     flyway
   }
 
-  private def getFlywayProperties() {
-    def props = new Properties()
-    addSchemasTo(props)
-    addLocationsTo(props)
-    addBasicTypesTo(props)
-    addPlaceholdersTo(props)
-    props
+  private def addDataSourceTo(Flyway flyway) {
+    def dataSource = new DriverDataSource(project.flyway.driver,
+      project.flyway.url, project.flyway.user, project.flyway.password)
+    flyway.setDataSource(dataSource)
+
+    logger.info " - driver: ${dataSource.driver.class.name}"
+    logger.info " - url: ${dataSource.url}"
+    logger.info " - user: ${dataSource.user}"
+    logger.info " - password: ${dataSource.password}"
   }
 
-  private def addBasicTypesTo(props) {
-    project.flyway.properties
-      .findAll { name, value ->
-        (value instanceof String) || (value instanceof Boolean)
-      }.each { name, value ->
-        props.setProperty("flyway.${name}", "${value}")
-      }
-  }
-
-  private def addSchemasTo(props) {
-    def schemas = project.flyway.schemas.join(',')
-    if (!schemas.isEmpty()) {
-      props.setProperty('flyway.schemas', schemas)
+  private def addMetadataTable(Flyway flyway) {
+    if (project.flyway.table != null) {
+      flyway.setTable(project.flyway.table)
     }
+    logger.info " - table: ${flyway.table}"
   }
 
-  private def addLocationsTo(props) {
+  private def addInitVersionTo(Flyway flyway) {
+    if (project.flyway.initialVersion != null) {
+      flyway.setInitVersion(project.flyway.initialVersion)
+    }
+    if (project.flyway.initialDescription != null) {
+      flyway.setInitDescription(project.flyway.initialDescription)
+    }
+    logger.info " - initialVersion: ${flyway.initVersion}"
+    logger.info " - initialDescription: ${flyway.initDescription}"
+  }
+
+  private def addSchemasTo(Flyway flyway) {
+    if (!project.flyway.schemas.isEmpty()) {
+      flyway.setSchemas(project.flyway.schemas.join(','))
+    }
+    logger.info " - schemas: ${flyway.schemas}"
+  }
+
+  private def addLocationsTo(Flyway flyway) {
     def locations = project.flyway.locations
     if (locations.isEmpty()) {
       locations += defaultLocations()
     }
-    if (!locations.isEmpty()) {
-      props.setProperty('flyway.locations', locations.join(','))
-    }
+    flyway.setLocations(locations as String[])
+    logger.info ' - locations: ' + (locations.isEmpty() ? 'db/migration' : locations)
   }
 
   private def defaultLocations() {
     def defaults = []
     if (isJavaProject()) {
       def resources = project.sourceSets.main.output.resourcesDir.path
-      defaults += [ "filesystem:${resources}" ]
+      defaults += "filesystem:${resources}"
     }
     if (hasClasses()) {
-      defaults += [ "classpath:db/migration" ]
+      defaults += "classpath:db/migration"
     }
     defaults
   }
 
-  private def addPlaceholdersTo(props) {
-    project.flyway.placeholders.each { name, value ->
-      props.setProperty("flyway.placeholders.${name}", value)
+  private def addSqlMigrationSettingsTo(Flyway flyway) {
+    if (project.flyway.sqlMigrationPrefix != null) {
+      flyway.setSqlMigrationPrefix(project.flyway.sqlMigrationPrefix)
     }
+    if (project.flyway.sqlMigrationSuffix != null) {
+      flyway.setSqlMigrationSuffix(project.flyway.sqlMigrationSuffix)
+    }
+    if (project.flyway.encoding != null) {
+      flyway.setEncoding(project.flyway.encoding)
+    }
+    if (!project.flyway.placeholders.isEmpty()) {
+      flyway.setPlaceholders(project.flyway.placeholders)
+    }
+    if (!project.flyway.placeholderPrefix != null) {
+      flyway.setPlaceholderPrefix(project.flyway.placeholderPrefix)
+    }
+    if (!project.flyway.placeholderSuffix != null) {
+      flyway.setPlaceholderSuffix(project.flyway.placeholderSuffix)
+    }
+    logger.info " - sql migration prefix: ${flyway.sqlMigrationPrefix}"
+    logger.info " - sql migration prefix: ${flyway.sqlMigrationSuffix}"
+    logger.info " - encoding: ${flyway.encoding}"
+    logger.info " - placeholders: ${flyway.placeholders}"
+    logger.info " - placeholder prefix: ${flyway.placeholderPrefix}"
+    logger.info " - placeholder suffix: ${flyway.placeholderSuffix}"
+  }
+
+  private def addTargetVersionTo(Flyway flyway) {
+    if (project.flyway.target != null) {
+      flyway.setTarget(new MigrationVersion(project.flyway.target))
+    }
+    logger.info " - target: ${flyway.target}"
+  }
+
+  private def addValidationSettingsTo(Flyway flyway) {
+    if (project.flyway.outOfOrder) {
+      flyway.setOutOfOrder(project.flyway.outOfOrder)
+    }
+    if (project.flyway.validateOnMigrate) {
+      flyway.setValidateOnMigrate(project.flyway.validateOnMigrate)
+    }
+    if (project.flyway.cleanOnValidationError) {
+      flyway.setCleanOnValidationError(project.flyway.cleanOnValidationError)
+    }
+    if (project.flyway.initOnMigrate) {
+      flyway.setInitOnMigrate(project.flyway.initOnMigrate)
+    }
+    logger.info " - out of order: ${flyway.outOfOrder}"
+    logger.info " - validate on migrate: ${flyway.validateOnMigrate}"
+    logger.info " - clean on validation error: ${flyway.cleanOnValidationError}"
+    logger.info " - init on migrate: ${flyway.initOnMigrate}"
   }
 
   protected boolean isJavaProject() {

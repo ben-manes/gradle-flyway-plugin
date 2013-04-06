@@ -26,7 +26,7 @@ class FlywayValidateTask extends AbstractFlywayTask {
     description = 'Validates the applied migrations against the ones available on the classpath.'
   }
 
-  def run(flyway) {
+  def run(Flyway flyway) {
     flyway.validate()
   }
 }

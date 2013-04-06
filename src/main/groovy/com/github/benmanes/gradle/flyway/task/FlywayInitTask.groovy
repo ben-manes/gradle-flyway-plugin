@@ -26,7 +26,7 @@ class FlywayInitTask extends AbstractFlywayTask {
     description = 'Creates and initializes the metadata table in the schema.'
   }
 
-  def run(flyway) {
+  def run(Flyway flyway) {
     flyway.init()
   }
 }
