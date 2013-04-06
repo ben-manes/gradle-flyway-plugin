@@ -6,8 +6,17 @@
 This plugin is hosted on the Maven Central Repository. All actions are logged at the `info` level.
 
 See Flyway's [command-line arguments](http://flywaydb.org/documentation/commandline) for the
-configuration reference. The project's `sourceSets.main.resources` is added to the `locations`
-automatically if the `java` plugin is detected. 
+configuration reference. If the `locations` configuration is not set and the `java` plugin is
+detected then setting is defaulted to the `sourceSets.main.output.resourcesDir`. If compiled
+classes are detected then the `sourceSets.main.output.classesDir` are added to the classpath and
+`classpath:db/migration` added to the default locations.
+
+The flyway tasks may include Java migrations. This requires that the classes are compiled in a
+dependent task. The `dependsOnTasks` configuration acts as a `dependsOn` relationship that applies
+to all flyway tasks. This relationship is not required to allow for the inverse relationship, such
+as for code generating from the schema. See the 
+[gradle-jooq-plugin](https://github.com/ben-manes/gradle-jooq-plugin) for one such example.
+
 
 ```groovy
 apply plugin: 'flyway'
@@ -19,7 +28,7 @@ buildscript {
 
   dependencies {
     classpath 'com.h2database:h2:1.3.170'
-    classpath 'com.github.ben-manes:gradle-flyway-plugin:0.3'
+    classpath 'com.github.ben-manes:gradle-flyway-plugin:0.4'
   }
 }
 
@@ -52,6 +61,8 @@ Repairs the Flyway metadata table after a failed migration.
 
 ```groovy
 flyway {
+  dependsOnTasks(compileJava)
+
   url = "jdbc:h2:${buildDir}/db/flyway"    
   driver = 'org.h2.Driver'
   user = 'SA'
