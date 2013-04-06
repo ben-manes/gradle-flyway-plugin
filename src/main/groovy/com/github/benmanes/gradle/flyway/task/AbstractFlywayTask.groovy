@@ -85,14 +85,14 @@ abstract class AbstractFlywayTask extends DefaultTask {
   }
 
   private def addInitVersionTo(Flyway flyway) {
-    if (project.flyway.initialVersion != null) {
-      flyway.setInitVersion(project.flyway.initialVersion)
+    if (project.flyway.initVersion != null) {
+      flyway.setInitVersion(project.flyway.initVersion)
     }
-    if (project.flyway.initialDescription != null) {
-      flyway.setInitDescription(project.flyway.initialDescription)
+    if (project.flyway.initDescription != null) {
+      flyway.setInitDescription(project.flyway.initDescription)
     }
-    logger.info " - initialVersion: ${flyway.initVersion}"
-    logger.info " - initialDescription: ${flyway.initDescription}"
+    logger.info " - initVersion: ${flyway.initVersion}"
+    logger.info " - initDescription: ${flyway.initDescription}"
   }
 
   private def addSchemasTo(Flyway flyway) {

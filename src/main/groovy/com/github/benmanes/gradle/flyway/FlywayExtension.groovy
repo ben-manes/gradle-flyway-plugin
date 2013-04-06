@@ -42,10 +42,10 @@ public class FlywayExtension {
   List<String> schemas
 
   /** The initial version to put in the database */
-  String initialVersion
+  String initVersion
 
   /** The description of the initial version */
-  String initialDescription
+  String initDescription
 
   /**
    * Locations to scan recursively for migrations. The location type is determined by its prefix.
