@@ -15,8 +15,8 @@ buildscript {
 }
 
 dependencies {
-  groovy localGroovy()
   compile gradleApi()
+  compile localGroovy()
   compile 'com.googlecode.flyway:flyway-core:2.1.1'
 }
 
@@ -76,5 +76,5 @@ modifyPom {
 }
 
 task wrapper(type: Wrapper, description: 'Generates the gradle wrapper.') {
-  gradleVersion = '1.5'
+  gradleVersion = '1.6-rc-1'
 }

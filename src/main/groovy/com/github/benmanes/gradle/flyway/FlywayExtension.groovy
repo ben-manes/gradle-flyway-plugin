@@ -98,7 +98,7 @@ public class FlywayExtension {
   Boolean initOnMigrate
 
   /** The dependencies that all flyway tasks depend on. */
-  private List<Object> dependsOnTasks
+  List<Object> dependsOnTasks
 
   public FlywayExtension() {
     schemas = []
