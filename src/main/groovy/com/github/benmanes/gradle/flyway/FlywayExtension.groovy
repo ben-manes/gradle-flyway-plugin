@@ -39,7 +39,7 @@ public class FlywayExtension {
   String table
 
   /** The case-sensitive list of schemas managed by Flyway */
-  List<String> schemas
+  public List<String> schemas = []
 
   /** The initial version to put in the database */
   String initVersion
@@ -56,7 +56,7 @@ public class FlywayExtension {
    * <tt>Locations starting with filesystem:</tt>
    * point to a directory on the filesystem and may only contain sql migrations.
    */
-  List<String> locations
+  List<String> locations = []
 
   /** The file name prefix for Sql migrations */
   String sqlMigrationPrefix
@@ -68,7 +68,7 @@ public class FlywayExtension {
   String encoding
 
   /** Placeholders to replace in Sql migrations */
-  Map<String, String> placeholders
+  Map<String, String> placeholders = [:]
 
   /** The prefix of every placeholder */
   String placeholderPrefix
@@ -96,23 +96,48 @@ public class FlywayExtension {
    * with no metadata table.
    */
   Boolean initOnMigrate
+  
+ 
+  private FlywayMasterExtension parent
+  
+  public getdriver() {return driver ?: parent?.driver}  
+  public geturl() {return url ?: parent?.url}  
+  public getuser() {return user ?: parent?.user}  
+  public getpassword() {return password ?: parent?.password}  
+  public gettable() {return table ?: parent?.table}  
+  public getschemas() {
+	List returnSchemas
+	if (parent == null) {
+		returnSchemas = schemas
+	}
+	else {
+		returnSchemas = parent.schemaGenericFirst ? parent?.schemas + schemas : schemas + parent?.schemas
+	}
+	return returnSchemas}  
+  public getinitVersion() {return initVersion ?: parent?.initVersion}  
+  public getinitDescription() {return initDescription ?: parent?.initDescription}  
+  public getlocations() {return parent == null ? locations : locations + parent?.locations}  
+  public getsqlMigrationPrefix() {return sqlMigrationPrefix ?: parent?.sqlMigrationPrefix}  
+  public getsqlMigrationSuffix() {return sqlMigrationSuffix ?: parent?.sqlMigrationSuffix}  
+  public getplaceholders() {
+	  return parent == null ? placeholders : parent?.placeholders + placeholders}  
+  public getplaceholderPrefix() {return placeholderPrefix ?: parent?.placeholderPrefix}  
+  public getplaceholderSuffix() {return placeholderSuffix ?: parent?.placeholderSuffix}  
+  public gettarget() {return target ?: parent?.target}
+  public getoutOfOrder() {return outOfOrder ?: parent?.outOfOrder}
+  public getvalidateOnMigrate() {return validateOnMigrate ?: parent?.validateOnMigrate}
+  public getcleanOnValidationError() {return cleanOnValidationError ?: parent?.cleanOnValidationError}
+  public getinitOnMigrate() {return initOnMigrate ?: parent?.initOnMigrate}
 
-  /** The dependencies that all flyway tasks depend on. */
-  private List<Object> dependsOnTasks
-
+  public FlywayExtension(parent) {
+    this.parent = parent
+    schemas = []
+    locations = []
+    placeholders = [:]
+  }
   public FlywayExtension() {
     schemas = []
     locations = []
     placeholders = [:]
-    dependsOnTasks = []
-  }
-
-  /** @see http://www.gradle.org/docs/current/javadoc/org/gradle/api/Task.html#dependencies */
-  def dependsOnTasks(Object... paths) {
-    dependsOnTasks += paths
-  }
-
-  def getDependsOnTasks() {
-    dependsOnTasks
   }
 }
