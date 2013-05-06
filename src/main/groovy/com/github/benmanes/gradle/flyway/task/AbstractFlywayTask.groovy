@@ -56,7 +56,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
     logger.info 'Flyway configuration:'
     def flyway = new Flyway()
     addDataSourceTo(flyway)
-    addMetadataTable(flyway)
+    addMetadataTableTo(flyway)
     addSchemasTo(flyway)
     addInitVersionTo(flyway)
     addLocationsTo(flyway)
@@ -77,7 +77,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
     logger.info " - password: ${flyway.dataSource.password}"
   }
 
-  private def addMetadataTable(Flyway flyway) {
+  private def addMetadataTableTo(Flyway flyway) {
     if (project.flyway.table != null) {
       flyway.setTable(project.flyway.table)
     }
