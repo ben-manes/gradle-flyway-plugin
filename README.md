@@ -17,6 +17,12 @@ to all flyway tasks. This relationship is not required to allow for the inverse 
 as for code generating from the schema. See the 
 [gradle-jooq-plugin](https://github.com/ben-manes/gradle-jooq-plugin) for one such example.
 
+For a single-database environment, only the ```flyway``` extension needs to be used. For an 
+environment where deployments to multiple databases must be run as part of the release,
+```flywayMulti``` can be used in addition to ```flyway```. For lists, such as ```schemas``` and
+```placeholders```, the a list that appears in both extensions will be combined. In all other 
+cases, values specified in ```flywayMulti``` will take precedence over values in ```flyway```.
+
 
 ```groovy
 apply plugin: 'flyway'
@@ -57,7 +63,7 @@ Prints the details and status information about all the migrations.
 ### `flywayRepair`
 Repairs the Flyway metadata table after a failed migration.
 
-## Sample
+## Sample for Single Database
 
 ```groovy
 flyway {
@@ -91,4 +97,54 @@ flyway {
   cleanOnValidationError = false
   initOnMigrate = false
 }
+```
+
+
+## Sample for Multiple Databases
+
+```groovy
+flyway {
+  dependsOnTasks(compileJava)
+  
+  driver = 'org.h2.Driver'
+  user = 'SA'
+  password = 'mySecretPwd'
+  table = 'schema_history'
+  schemas = [ 'schema1', 'schema2', 'schema3' ]
+  initVersion = '1.0'
+  initDescription = 'Base Migration'
+  locations = [
+    'classpath:com.mycompany.project.migration',
+    'filesystem:/sql-migrations',
+    'database/migrations'
+  ]
+  encoding = 'ISO-8859-1'
+  placeholderPrefix = '#['
+  placeholderSuffix = ']'
+  target = '5.1'
+  outOfOrder = false
+  validateOnMigrate = true
+  cleanOnValidationError = false
+  initOnMigrate = false
+  placeholders = [ 
+	'aplaceholder': 'value'
+	}
+  schemaGenericFirst = true
+}
+flywayMulti {
+  TransactionalDB {
+    sqlMigrationPrefix = 'Transaction-'
+    sqlMigrationSuffix = '-OK.sql'
+    placeholders = [ 
+      'otherplaceholder': 'value123'
+    schemas = [ 'schema4', 'schema5' ]
+    }
+  ReportingDB {
+    sqlMigrationPrefix = 'Reporting-'
+    sqlMigrationSuffix = '-OK.sql'
+    placeholders = [ 
+      'otherplaceholder': 'value456'
+    schemas = [ 'schema6', 'schema7' ]
+    }
+  ]
 ```

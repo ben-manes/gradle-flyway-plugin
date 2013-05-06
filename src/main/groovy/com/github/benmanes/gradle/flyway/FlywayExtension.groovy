@@ -15,6 +15,8 @@
  */
 package com.github.benmanes.gradle.flyway
 
+import java.util.List;
+
 /**
  * The flyway's configuration properties.
  *
@@ -22,6 +24,8 @@ package com.github.benmanes.gradle.flyway
  * @see http://flywaydb.org/documentation/commandline
  */
 public class FlywayExtension {
+	
+	final String name
 
   /** The fully qualified classname of the jdbc driver to use to connect to the database */
   String driver
@@ -97,45 +101,30 @@ public class FlywayExtension {
    */
   Boolean initOnMigrate
   
- 
-  private FlywayMasterExtension parent
-  
-  public getdriver() {return driver ?: parent?.driver}  
-  public geturl() {return url ?: parent?.url}  
-  public getuser() {return user ?: parent?.user}  
-  public getpassword() {return password ?: parent?.password}  
-  public gettable() {return table ?: parent?.table}  
-  public getschemas() {
-	List returnSchemas
-	if (parent == null) {
-		returnSchemas = schemas
-	}
-	else {
-		returnSchemas = parent.schemaGenericFirst ? parent?.schemas + schemas : schemas + parent?.schemas
-	}
-	return returnSchemas}  
-  public getinitVersion() {return initVersion ?: parent?.initVersion}  
-  public getinitDescription() {return initDescription ?: parent?.initDescription}  
-  public getlocations() {return parent == null ? locations : locations + parent?.locations}  
-  public getsqlMigrationPrefix() {return sqlMigrationPrefix ?: parent?.sqlMigrationPrefix}  
-  public getsqlMigrationSuffix() {return sqlMigrationSuffix ?: parent?.sqlMigrationSuffix}  
-  public getplaceholders() {
-	  return parent == null ? placeholders : parent?.placeholders + placeholders}  
-  public getplaceholderPrefix() {return placeholderPrefix ?: parent?.placeholderPrefix}  
-  public getplaceholderSuffix() {return placeholderSuffix ?: parent?.placeholderSuffix}  
-  public gettarget() {return target ?: parent?.target}
-  public getoutOfOrder() {return outOfOrder ?: parent?.outOfOrder}
-  public getvalidateOnMigrate() {return validateOnMigrate ?: parent?.validateOnMigrate}
-  public getcleanOnValidationError() {return cleanOnValidationError ?: parent?.cleanOnValidationError}
-  public getinitOnMigrate() {return initOnMigrate ?: parent?.initOnMigrate}
+  /** Indicates the order to concatenate the schemas: if true, schemas from the generic
+   flyway extension will be appended first; if false, the database-specific schemas will be appended first */
+  Boolean schemaGenericFirst = new Boolean(true)
 
-  public FlywayExtension(parent) {
-    this.parent = parent
+  /** The dependencies that all flyway tasks depend on. */
+  List<Object> dependsOnTasks = []
+
+  /** @see http://www.gradle.org/docs/current/javadoc/org/gradle/api/Task.html#dependencies */
+  def dependsOnTasks(Object... paths) {
+	  dependsOnTasks += paths
+  }
+
+  def getDependsOnTasks() {
+	  dependsOnTasks
+  }
+  
+  public FlywayExtension() {
     schemas = []
     locations = []
     placeholders = [:]
   }
-  public FlywayExtension() {
+  
+  public FlywayExtension(String Name) {
+	  this.name = Name
     schemas = []
     locations = []
     placeholders = [:]
