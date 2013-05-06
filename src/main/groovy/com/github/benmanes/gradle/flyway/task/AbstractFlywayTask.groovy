@@ -97,7 +97,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
   private def addSchemasTo(Flyway flyway) {
     if (!project.flyway.schemas.isEmpty()) {
-      flyway.setSchemas(project.flyway.schemas.join(','))
+      flyway.setSchemas(project.flyway.schemas as String[])
     }
     logger.info " - schemas: ${flyway.schemas}"
   }
