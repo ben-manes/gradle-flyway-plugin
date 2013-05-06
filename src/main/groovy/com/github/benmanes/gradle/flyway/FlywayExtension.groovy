@@ -15,8 +15,6 @@
  */
 package com.github.benmanes.gradle.flyway
 
-import java.util.List;
-
 /**
  * The flyway's configuration properties.
  *
@@ -60,7 +58,7 @@ public class FlywayExtension {
    * <tt>Locations starting with filesystem:</tt>
    * point to a directory on the filesystem and may only contain sql migrations.
    */
-  List<String> locations = []
+  List<String> locations
 
   /** The file name prefix for Sql migrations */
   String sqlMigrationPrefix
@@ -72,7 +70,6 @@ public class FlywayExtension {
   String encoding
 
   /** Placeholders to replace in Sql migrations */
-  Map<String, String> placeholders = [:]
 
   /** The prefix of every placeholder */
   String placeholderPrefix
@@ -106,17 +103,8 @@ public class FlywayExtension {
   Boolean schemaGenericFirst = new Boolean(true)
 
   /** The dependencies that all flyway tasks depend on. */
-  List<Object> dependsOnTasks = []
+  List<Object> dependsOnTasks
 
-  /** @see http://www.gradle.org/docs/current/javadoc/org/gradle/api/Task.html#dependencies */
-  def dependsOnTasks(Object... paths) {
-	  dependsOnTasks += paths
-  }
-
-  def getDependsOnTasks() {
-	  dependsOnTasks
-  }
-  
   public FlywayExtension() {
     schemas = []
     locations = []
@@ -124,7 +112,7 @@ public class FlywayExtension {
   }
   
   public FlywayExtension(String Name) {
-	  this.name = Name
+	this.name = Name
     schemas = []
     locations = []
     placeholders = [:]

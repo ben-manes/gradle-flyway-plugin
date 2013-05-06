@@ -35,12 +35,12 @@ public class FlywayPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.extensions.create('flyway', FlywayExtension)
 	project.extensions.flywayMulti = project.container(FlywayExtension)
-    project.tasks.add('flywayClean', FlywayCleanTask)
-    project.tasks.add('flywayInit', FlywayInitTask)
-    project.tasks.add('flywayMigrate', FlywayMigrateTask)
-    project.tasks.add('flywayValidate', FlywayValidateTask)
-    project.tasks.add('flywayInfo', FlywayInfoTask)
-    project.tasks.add('flywayRepair', FlywayRepairTask)
+    project.tasks.create('flywayClean', FlywayCleanTask)
+    project.tasks.create('flywayInit', FlywayInitTask)
+    project.tasks.create('flywayMigrate', FlywayMigrateTask)
+    project.tasks.create('flywayValidate', FlywayValidateTask)
+    project.tasks.create('flywayInfo', FlywayInfoTask)
+    project.tasks.create('flywayRepair', FlywayRepairTask)
   }
 }
 

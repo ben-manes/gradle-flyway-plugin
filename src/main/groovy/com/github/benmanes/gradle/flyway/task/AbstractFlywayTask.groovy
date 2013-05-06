@@ -88,11 +88,10 @@ abstract class AbstractFlywayTask extends DefaultTask {
 		flywayExt.password ?: project.flyway.password)
     flyway.setDataSource(dataSource)
 
-    logger.info " - driver: ${dataSource.driver.class.name}"
-    logger.info " - url: ${dataSource.url}"
-    logger.info " - user: ${dataSource.user}"
-// AM: Logging the password seems like a bad idea
-//    logger.info " - password: ${password}"
+    logger.info " - driver: ${flyway.dataSource.driver.class.name}"
+    logger.info " - url: ${flyway.dataSource.url}"
+    logger.info " - user: ${flyway.dataSource.user}"
+    logger.info " - password: ${flyway.dataSource.password}"
   }
 
   private def addMetadataTable(Flyway flyway, FlywayExtension flywayExt) {
