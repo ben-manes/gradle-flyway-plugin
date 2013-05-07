@@ -132,12 +132,14 @@ flyway {
 }
 flywayMulti {
   TransactionalDB {
+    url = "jdbc:h2:${buildDir}/db/flyway/transaction" 
     sqlMigrationPrefix = 'Transaction-'
     sqlMigrationSuffix = '-OK.sql'
     placeholders = [ 'otherplaceholder': 'value123'
     schemas = [ 'schema4', 'schema5' ]
     }
   ReportingDB {
+    url = "jdbc:h2:${buildDir}/db/flyway/report" 
     sqlMigrationPrefix = 'Reporting-'
     sqlMigrationSuffix = '-OK.sql'
     placeholders = [ 'otherplaceholder': 'value456' ]
