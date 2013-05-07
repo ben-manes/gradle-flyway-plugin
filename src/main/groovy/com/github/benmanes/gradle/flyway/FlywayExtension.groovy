@@ -117,4 +117,13 @@ public class FlywayExtension {
     locations = []
     placeholders = [:]
   }
+
+  /** @see http://www.gradle.org/docs/current/javadoc/org/gradle/api/Task.html#dependencies */
+  def dependsOnTasks(Object... paths) {
+    dependsOnTasks += paths
+  }
+
+  def getDependsOnTasks() {
+    dependsOnTasks
+  }
 }

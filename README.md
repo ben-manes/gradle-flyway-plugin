@@ -126,8 +126,7 @@ flyway {
   validateOnMigrate = true
   cleanOnValidationError = false
   initOnMigrate = false
-  placeholders = [ 
-	'aplaceholder': 'value'
+  placeholders = [ 	'aplaceholder': 'value' ]
 	}
   schemaGenericFirst = true
 }
@@ -135,15 +134,13 @@ flywayMulti {
   TransactionalDB {
     sqlMigrationPrefix = 'Transaction-'
     sqlMigrationSuffix = '-OK.sql'
-    placeholders = [ 
-      'otherplaceholder': 'value123'
+    placeholders = [ 'otherplaceholder': 'value123'
     schemas = [ 'schema4', 'schema5' ]
     }
   ReportingDB {
     sqlMigrationPrefix = 'Reporting-'
     sqlMigrationSuffix = '-OK.sql'
-    placeholders = [ 
-      'otherplaceholder': 'value456'
+    placeholders = [ 'otherplaceholder': 'value456' ]
     schemas = [ 'schema6', 'schema7' ]
     }
   ]
