@@ -33,10 +33,10 @@ abstract class AbstractFlywayTask extends DefaultTask {
   AbstractFlywayTask() {
     group = 'Flyway'
     project.afterEvaluate {
-      def dependsOnTasks = project.flyway.dependsOnTasks
-	  project.flywayMulti.all() {
-		  dependsOnTasks += delegate.dependsOnTasks
-	  }
+      def dependsOnTasks = project.flyway.defaults.dependsOnTasks
+      project.flyway.databases.all() {
+        dependsOnTasks += delegate.dependsOnTasks
+      }
       if (isJavaProject()) {
         dependsOnTasks += project.tasks.processResources
       }
@@ -46,46 +46,38 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
   @TaskAction
   def runTask() {
-    if (project.flywayMulti.isEmpty() == 0) {
-		logger.info 'Flyway single DB configuration:'
-		run(create(project.flyway))
-	}
-	else {
-		logger.info 'Flyway multiple DB configuration:'
-		project.flywayMulti.all() {
-		    logger.info "Executing ${this.getName()} for ${delegate.name}"
-		    println "${this.getName()}: ${delegate.name}"
-			run(create(delegate))			
-		}
-	}
+    project.flyway.databases.all() {
+      logger.info "Executing ${this.getName()} for ${delegate.name}"
+      run(delegate.name, create(delegate))      
+    }
   }
 
   /** Executes the task's custom behavior. */
-  def abstract run(Flyway flyway)
+  def abstract run(String name, Flyway flyway)
 
   /** Creates a new, configured flyway instance */
-  protected def create(FlywayExtension flywayExt) {	
-	if (isJavaProject()) {
-	  addClassesDirToClassLoader()
-	}
-	logger.info 'Flyway configuration:'
-	def flyway = new Flyway()
-	addDataSourceTo(flyway, flywayExt)
-	addMetadataTable(flyway, flywayExt)
-	addSchemasTo(flyway, flywayExt)
-	addInitVersionTo(flyway, flywayExt)
-	addLocationsTo(flyway, flywayExt)
-	addSqlMigrationSettingsTo(flyway, flywayExt)
-	addTargetVersionTo(flyway, flywayExt)
-	addValidationSettingsTo(flyway, flywayExt)
-	flyway
+  protected def create(FlywayExtension flywayExt) {  
+    if (isJavaProject()) {
+      addClassesDirToClassLoader()
+    }
+    logger.info 'Flyway configuration:'
+    def flyway = new Flyway()
+    addDataSourceTo(flyway, flywayExt)
+    addMetadataTable(flyway, flywayExt)
+    addSchemasTo(flyway, flywayExt)
+    addInitVersionTo(flyway, flywayExt)
+    addLocationsTo(flyway, flywayExt)
+    addSqlMigrationSettingsTo(flyway, flywayExt)
+    addTargetVersionTo(flyway, flywayExt)
+    addValidationSettingsTo(flyway, flywayExt)
+    flyway
   }
   
   private def addDataSourceTo(Flyway flyway, FlywayExtension flywayExt) {
-    def dataSource = new DriverDataSource(flywayExt.driver ?: project.flyway.driver, 
-		flywayExt.url ?: project.flyway.url, 
-		flywayExt.user ?: project.flyway.user, 
-		flywayExt.password ?: project.flyway.password)
+    def dataSource = new DriverDataSource(flywayExt.driver ?: project.flyway.defaults.driver, 
+    flywayExt.url ?: project.flyway.defaults.url, 
+    flywayExt.user ?: project.flyway.defaults.user, 
+    flywayExt.password ?: project.flyway.defaults.password)
     flyway.setDataSource(dataSource)
 
     logger.info " - driver: ${flyway.dataSource.driver.class.name}"
@@ -95,39 +87,39 @@ abstract class AbstractFlywayTask extends DefaultTask {
   }
 
   private def addMetadataTable(Flyway flyway, FlywayExtension flywayExt) {
-    if (flywayExt.table != null || project.flyway.table != null) {
-      flyway.setTable(flywayExt.table ?: project.flyway.table)
+    if (flywayExt.table != null || project.flyway.defaults.table != null) {
+      flyway.setTable(flywayExt.table ?: project.flyway.defaults.table)
     }
     logger.info " - table: ${flyway.table}"
   }
 
   private def addInitVersionTo(Flyway flyway, FlywayExtension flywayExt) {
-    if (flywayExt.initVersion != null || project.flyway.initVersion != null) {
-      flyway.setInitVersion(flywayExt.initVersion ?: project.flyway.initVersion)
+    if (flywayExt.initVersion != null || project.flyway.defaults.initVersion != null) {
+      flyway.setInitVersion(flywayExt.initVersion ?: project.flyway.defaults.initVersion)
     }
-    if (flywayExt.initDescription != null || project.flyway.initDescription != null) {
-      flyway.setInitDescription(flywayExt.initDescription ?: project.flyway.initDescription)
+    if (flywayExt.initDescription != null || project.flyway.defaults.initDescription != null) {
+      flyway.setInitDescription(flywayExt.initDescription ?: project.flyway.defaults.initDescription)
     }
     logger.info " - initVersion: ${flyway.initVersion}"
     logger.info " - initDescription: ${flyway.initDescription}"
   }
 
   private def addSchemasTo(Flyway flyway, FlywayExtension flywayExt) {
-	  List schemas
-	if (flywayExt.schemaGenericFirst ?: project.flyway.schemaGenericFirst) {
-		schemas = project.flyway.schemas + flywayExt.schemas
-	}
-	else {
-		schemas = flywayExt.schemas + project.flyway.schemas		
-	}
-    if (!schemas.isEmpty()) {
-      flyway.setSchemas(schemas as String[])
+    List schemas
+    if (flywayExt.schemaDefaultFirst ?: project.flyway.defaults.schemaDefaultFirst) {
+      schemas = project.flyway.defaults.schemas + flywayExt.schemas
     }
-    logger.info " - schemas: ${flyway.schemas}"
+    else {
+      schemas = flywayExt.schemas + project.flyway.defaults.schemas    
+    }
+      if (!schemas.isEmpty()) {
+        flyway.setSchemas(schemas as String[])
+      }
+      logger.info " - schemas: ${flyway.schemas}"
   }
 
   private def addLocationsTo(Flyway flyway, FlywayExtension flywayExt) {
-    def locations = flywayExt.locations + project.flyway.locations
+    def locations = flywayExt.locations + project.flyway.defaults.locations
     if (!locations.isEmpty()) {
       locations += defaultLocations()
     }
@@ -148,23 +140,23 @@ abstract class AbstractFlywayTask extends DefaultTask {
   }
 
   private def addSqlMigrationSettingsTo(Flyway flyway, FlywayExtension flywayExt) {
-    if (flywayExt.sqlMigrationPrefix != null || project.flyway.sqlMigrationPrefix != null) {
-      flyway.setSqlMigrationPrefix(flywayExt.sqlMigrationPrefix ?: project.flyway.sqlMigrationPrefix)
+    if (flywayExt.sqlMigrationPrefix != null || project.flyway.defaults.sqlMigrationPrefix != null) {
+      flyway.setSqlMigrationPrefix(flywayExt.sqlMigrationPrefix ?: project.flyway.defaults.sqlMigrationPrefix)
     }
-    if (flywayExt.sqlMigrationSuffix != null || project.flyway.sqlMigrationSuffix != null) {
-      flyway.setSqlMigrationSuffix(flywayExt.sqlMigrationSuffix ?: project.flyway.sqlMigrationSuffix)
+    if (flywayExt.sqlMigrationSuffix != null || project.flyway.defaults.sqlMigrationSuffix != null) {
+      flyway.setSqlMigrationSuffix(flywayExt.sqlMigrationSuffix ?: project.flyway.defaults.sqlMigrationSuffix)
     }
-    if (flywayExt.encoding != null || project.flyway.encoding != null) {
-      flyway.setEncoding(flywayExt.encoding ?: project.flyway.encoding)
+    if (flywayExt.encoding != null || project.flyway.defaults.encoding != null) {
+      flyway.setEncoding(flywayExt.encoding ?: project.flyway.defaults.encoding)
     }
-    if (!(flywayExt.placeholders.isEmpty() && project.flyway.placeholders.isEmpty())) {
-      flyway.setPlaceholders(flywayExt.placeholders + project.flyway.placeholders)
+    if (!(flywayExt.placeholders.isEmpty() && project.flyway.defaults.placeholders.isEmpty())) {
+      flyway.setPlaceholders(flywayExt.placeholders + project.flyway.defaults.placeholders)
     }
-    if (flywayExt.placeholderPrefix != null || project.flyway.placeholderPrefix != null) {
-      flyway.setPlaceholderPrefix(flywayExt.placeholderPrefix ?: project.flyway.placeholderPrefix)
+    if (flywayExt.placeholderPrefix != null || project.flyway.defaults.placeholderPrefix != null) {
+      flyway.setPlaceholderPrefix(flywayExt.placeholderPrefix ?: project.flyway.defaults.placeholderPrefix)
     }
-    if (flywayExt.placeholderSuffix != null || project.flyway.placeholderSuffix != null) {
-      flyway.setPlaceholderSuffix(flywayExt.placeholderSuffix ?: project.flyway.placeholderSuffix)
+    if (flywayExt.placeholderSuffix != null || project.flyway.defaults.placeholderSuffix != null) {
+      flyway.setPlaceholderSuffix(flywayExt.placeholderSuffix ?: project.flyway.defaults.placeholderSuffix)
     }
     logger.info " - sql migration prefix: ${flyway.sqlMigrationPrefix}"
     logger.info " - sql migration prefix: ${flyway.sqlMigrationSuffix}"
@@ -175,24 +167,24 @@ abstract class AbstractFlywayTask extends DefaultTask {
   }
 
   private def addTargetVersionTo(Flyway flyway, FlywayExtension flywayExt) {
-    if (flywayExt.target != null || project.flyway.target != null) {
-      flyway.setTarget(new MigrationVersion(flywayExt.target ?: project.flyway.target))
+    if (flywayExt.target != null || project.flyway.defaults.target != null) {
+      flyway.setTarget(new MigrationVersion(flywayExt.target ?: project.flyway.defaults.target))
     }
     logger.info " - target: ${flyway.target}"
   }
 
   private def addValidationSettingsTo(Flyway flyway, FlywayExtension flywayExt) {
-    if (flywayExt.outOfOrder != null ||  project.flyway.outOfOrder != null) {
-      flyway.setOutOfOrder(flywayExt.outOfOrder ?: project.flyway.outOfOrder)
+    if (flywayExt.outOfOrder != null ||  project.flyway.defaults.outOfOrder != null) {
+      flyway.setOutOfOrder(flywayExt.outOfOrder ?: project.flyway.defaults.outOfOrder)
     }
-    if (flywayExt.validateOnMigrate != null ||  project.flyway.validateOnMigrate != null) {
-      flyway.setValidateOnMigrate(flywayExt.validateOnMigrate ?: project.flyway.validateOnMigrate)
+    if (flywayExt.validateOnMigrate != null ||  project.flyway.defaults.validateOnMigrate != null) {
+      flyway.setValidateOnMigrate(flywayExt.validateOnMigrate ?: project.flyway.defaults.validateOnMigrate)
     }
-    if (flywayExt.cleanOnValidationError != null ||  project.flyway.cleanOnValidationError != null) {
-      flyway.setCleanOnValidationError(flywayExt.cleanOnValidationError ?: project.flyway.cleanOnValidationError)
+    if (flywayExt.cleanOnValidationError != null ||  project.flyway.defaults.cleanOnValidationError != null) {
+      flyway.setCleanOnValidationError(flywayExt.cleanOnValidationError ?: project.flyway.defaults.cleanOnValidationError)
     }
-    if (flywayExt.initOnMigrate != null ||  project.flyway.initOnMigrate != null) {
-      flyway.setInitOnMigrate(flywayExt.initOnMigrate ?: project.flyway.initOnMigrate)
+    if (flywayExt.initOnMigrate != null ||  project.flyway.defaults.initOnMigrate != null) {
+      flyway.setInitOnMigrate(flywayExt.initOnMigrate ?: project.flyway.defaults.initOnMigrate)
     }
     logger.info " - out of order: ${flyway.outOfOrder}"
     logger.info " - validate on migrate: ${flyway.validateOnMigrate}"

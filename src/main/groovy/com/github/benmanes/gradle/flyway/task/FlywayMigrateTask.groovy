@@ -26,9 +26,8 @@ class FlywayMigrateTask extends AbstractFlywayTask {
     description = 'Migrates the schema to the latest version.'
   }
 
-  def run(Flyway flyway) {
-    def applied = flyway.migrate()
-	println "Result: ${applied}"
+  def run(String name, Flyway flyway) {
+    int applied = flyway.migrate()
     didWork = (applied > 0)
   }
 }

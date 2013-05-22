@@ -27,8 +27,9 @@ class FlywayInfoTask extends AbstractFlywayTask {
     description = 'Prints the details and status information about all the migrations.'
   }
 
-  def run(Flyway flyway) {
+  def run(String name, Flyway flyway) {
     def all = flyway.info().all()
+    println name
     println MigrationInfoDumper.dumpToAsciiTable(all)
   }
 }
