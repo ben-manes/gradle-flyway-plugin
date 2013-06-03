@@ -28,12 +28,6 @@ import org.gradle.api.NamedDomainObjectContainer
 
 public class FlywayContainer {
   
-  /** The defaults values that will be used if the individual database values are null */
-  FlywayExtension defaults
-  
-  /** The configuration for each database that is part of a release */
-  NamedDomainObjectContainer<FlywayExtension> databases
-
   /** The dependencies that all flyway tasks depend on. */
   List<Object> dependsOnTasks
 

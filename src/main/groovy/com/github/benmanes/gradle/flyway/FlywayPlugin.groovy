@@ -34,6 +34,8 @@ public class FlywayPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     project.extensions.create('flyway', FlywayContainer)
+    project.flyway.extensions.databases = project.container(FlywayExtension)
+    project.flyway.extensions.create('defaults', FlywayExtension)
     project.tasks.create('flywayClean', FlywayCleanTask)
     project.tasks.create('flywayInit', FlywayInitTask)
     project.tasks.create('flywayMigrate', FlywayMigrateTask)

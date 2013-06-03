@@ -33,10 +33,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
   AbstractFlywayTask() {
     group = 'Flyway'
     project.afterEvaluate {
-      def dependsOnTasks = project.flyway.defaults.dependsOnTasks
-      project.flyway.databases.all() {
-        dependsOnTasks += delegate.dependsOnTasks
-      }
+      def dependsOnTasks = project.flyway.dependsOnTasks
       if (isJavaProject()) {
         dependsOnTasks += project.tasks.processResources
       }
