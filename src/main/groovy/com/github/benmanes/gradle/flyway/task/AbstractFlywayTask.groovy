@@ -19,6 +19,7 @@ package com.github.benmanes.gradle.flyway.task;
 import com.googlecode.flyway.core.Flyway
 import com.googlecode.flyway.core.api.MigrationVersion
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource
+import com.googlecode.flyway.core.api.FlywayException
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import com.github.benmanes.gradle.flyway.FlywayExtension
@@ -45,7 +46,11 @@ abstract class AbstractFlywayTask extends DefaultTask {
   def runTask() {
     project.flyway.databases.all() {
       logger.info "Executing ${this.getName()} for ${delegate.name}"
-      run(delegate.name, create(delegate))      
+        try {
+          run(delegate.name, create(delegate))
+        } catch (Exception e) {
+          throw new FlywayException("Error occurred while executing ${this.getName()} for ${delegate.name}", e);
+        }
     }
   }
 
