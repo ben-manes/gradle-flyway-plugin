@@ -23,5 +23,10 @@ dependencies {
 
 flyway {
   dependsOnTasks(compileJava)
-  url = "jdbc:h2:${buildDir}/db/flyway"
+
+  databases {
+    main {
+      url = "jdbc:h2:${buildDir}/db/flyway"
+    }
+  }
 }

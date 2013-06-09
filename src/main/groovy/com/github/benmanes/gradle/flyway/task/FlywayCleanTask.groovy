@@ -26,7 +26,7 @@ class FlywayCleanTask extends AbstractFlywayTask {
     description = 'Drops all objects in the configured schemas.'
   }
 
-  def run(Flyway flyway) {
+  def run(String name, Flyway flyway) {
     flyway.clean()
   }
 }

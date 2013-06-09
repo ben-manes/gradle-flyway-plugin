@@ -1,0 +1,38 @@
+apply plugin: 'flyway'
+apply plugin: 'java'
+
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath 'com.h2database:h2:1.3.170'
+    classpath 'com.github.ben-manes:gradle-flyway-plugin:latest.integration'
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile 'com.googlecode.flyway:flyway-core:2.1.1'
+}
+
+flyway {
+  defaults {
+    schemaGenericFirst = true
+  }
+  databases {
+    transactional {
+      url = "jdbc:h2:${buildDir}/db/flyway/transaction"
+      sqlMigrationPrefix = 'Transaction_V'
+    }
+    reporting {
+      url = "jdbc:h2:${buildDir}/db/flyway/report"
+      sqlMigrationPrefix = 'Reporting_V'
+    }
+  }
+}

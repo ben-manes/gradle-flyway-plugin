@@ -17,6 +17,12 @@ to all flyway tasks. This relationship is not required to allow for the inverse 
 as for code generating from the schema. See the 
 [gradle-jooq-plugin](https://github.com/ben-manes/gradle-jooq-plugin) for one such example.
 
+For a single-database environment, only a single database extension needs to be used. For an 
+environment where deployments to multiple databases must be run as part of the release,
+```defaults``` can be used in addition to ```databases```. For lists, such as ```schemas``` and
+```placeholders```, the a list that appears in both extensions will be combined. In all other 
+cases, values specified in ```databases``` will take precedence over values in ```defaults```.
+
 
 ```groovy
 apply plugin: 'flyway'
@@ -28,12 +34,16 @@ buildscript {
 
   dependencies {
     classpath 'com.h2database:h2:1.3.170'
-    classpath 'com.github.ben-manes:gradle-flyway-plugin:0.5'
+    classpath 'com.github.ben-manes:gradle-flyway-plugin:0.6'
   }
 }
 
 flyway {
-  url = "jdbc:h2:${buildDir}/db/flyway"
+  databases {
+    main {
+      url = "jdbc:h2:${buildDir}/db/flyway"
+    }
+  }
 }
 ```
 
@@ -57,38 +67,90 @@ Prints the details and status information about all the migrations.
 ### `flywayRepair`
 Repairs the Flyway metadata table after a failed migration.
 
-## Sample
+## Sample for Single Database
 
 ```groovy
 flyway {
   dependsOnTasks(compileJava)
+  databases {
+    main {
+      url = "jdbc:h2:${buildDir}/db/flyway"    
+      driver = 'org.h2.Driver'
+      user = 'SA'
+      password = 'mySecretPwd'
+      table = 'schema_history'
+      schemas = [ 'schema1', 'schema2', 'schema3' ]
+      initVersion = '1.0'
+      initDescription = 'Base Migration'
+      locations = [
+        'classpath:com.mycompany.project.migration',
+        'filesystem:/sql-migrations',
+        'database/migrations'
+      ]
+      sqlMigrationPrefix = 'Migration-'
+      sqlMigrationSuffix = '-OK.sql'
+      encoding = 'ISO-8859-1'
+      placeholders = [ 
+        'aplaceholder': 'value',
+        'otherplaceholder': 'value123'
+      ]
+      placeholderPrefix = '#['
+      placeholderSuffix = ']'
+      target = '5.1'
+      outOfOrder = false
+      validateOnMigrate = true
+      cleanOnValidationError = false
+      initOnMigrate = false
+    }
+  }
+}
+```
 
-  url = "jdbc:h2:${buildDir}/db/flyway"    
-  driver = 'org.h2.Driver'
-  user = 'SA'
-  password = 'mySecretPwd'
-  table = 'schema_history'
-  schemas = [ 'schema1', 'schema2', 'schema3' ]
-  initVersion = '1.0'
-  initDescription = 'Base Migration'
-  locations = [
-    'classpath:com.mycompany.project.migration',
-    'filesystem:/sql-migrations',
-    'database/migrations'
-  ]
-  sqlMigrationPrefix = 'Migration-'
-  sqlMigrationSuffix = '-OK.sql'
-  encoding = 'ISO-8859-1'
-  placeholders = [ 
-    'aplaceholder': 'value',
-    'otherplaceholder': 'value123'
-  ]
-  placeholderPrefix = '#['
-  placeholderSuffix = ']'
-  target = '5.1'
-  outOfOrder = false
-  validateOnMigrate = true
-  cleanOnValidationError = false
-  initOnMigrate = false
+
+## Sample for Multiple Databases
+
+```groovy
+flyway {
+  dependsOnTasks(compileJava)
+  defaults {  
+    driver = 'org.h2.Driver'
+    user = 'SA'
+    password = 'mySecretPwd'
+    table = 'schema_history'
+    schemas = [ 'schema1', 'schema2', 'schema3' ]
+    initVersion = '1.0'
+    initDescription = 'Base Migration'
+    locations = [
+      'classpath:com.mycompany.project.migration',
+      'filesystem:/sql-migrations',
+      'database/migrations'
+    ]
+    encoding = 'ISO-8859-1'
+    placeholderPrefix = '#['
+    placeholderSuffix = ']'
+    target = '5.1'
+    outOfOrder = false
+    validateOnMigrate = true
+    cleanOnValidationError = false
+    initOnMigrate = false
+    placeholders = [ 'aplaceholder': 'value' ]
+    schemaDefaultFirst = true
+  }
+  databases {
+    transactional {
+      url = "jdbc:h2:${buildDir}/db/flyway/transaction" 
+      sqlMigrationPrefix = 'Transaction-'
+      sqlMigrationSuffix = '-OK.sql'
+      placeholders = [ 'otherplaceholder': 'value123'
+      schemas = [ 'schema4', 'schema5' ]
+    }
+    reporting {
+      url = "jdbc:h2:${buildDir}/db/flyway/report" 
+      sqlMigrationPrefix = 'Reporting-'
+      sqlMigrationSuffix = '-OK.sql'
+      placeholders = [ 'otherplaceholder': 'value456' ]
+      schemas = [ 'schema6', 'schema7' ]
+    }
+  }
 }
 ```

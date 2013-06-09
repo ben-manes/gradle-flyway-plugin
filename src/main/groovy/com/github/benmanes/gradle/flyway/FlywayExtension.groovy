@@ -23,6 +23,8 @@ package com.github.benmanes.gradle.flyway
  */
 public class FlywayExtension {
 
+  String name
+
   /** The fully qualified classname of the jdbc driver to use to connect to the database */
   String driver
 
@@ -39,7 +41,7 @@ public class FlywayExtension {
   String table
 
   /** The case-sensitive list of schemas managed by Flyway */
-  List<String> schemas
+  public List<String> schemas = []
 
   /** The initial version to put in the database */
   String initVersion
@@ -68,7 +70,7 @@ public class FlywayExtension {
   String encoding
 
   /** Placeholders to replace in Sql migrations */
-  Map<String, String> placeholders
+  Map<String,String> placeholders
 
   /** The prefix of every placeholder */
   String placeholderPrefix
@@ -97,22 +99,24 @@ public class FlywayExtension {
    */
   Boolean initOnMigrate
 
-  /** The dependencies that all flyway tasks depend on. */
-  List<Object> dependsOnTasks
+  /**
+   * Indicates the order to concatenate the schemas:
+   * <ul>
+   *   <li>true: schemas from the default values will be appended first
+   *   <li>false: the database-specific schemas will be appended first
+   * </ul>
+   */
+  Boolean schemaDefaultFirst
 
   public FlywayExtension() {
     schemas = []
     locations = []
     placeholders = [:]
-    dependsOnTasks = []
+    schemaDefaultFirst = true
   }
 
-  /** @see http://www.gradle.org/docs/current/javadoc/org/gradle/api/Task.html#dependencies */
-  def dependsOnTasks(Object... paths) {
-    dependsOnTasks += paths
-  }
-
-  def getDependsOnTasks() {
-    dependsOnTasks
+  public FlywayExtension(String name) {
+    this()
+    this.name = name
   }
 }
