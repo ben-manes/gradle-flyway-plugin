@@ -113,7 +113,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
   private def addSchemasTo(Flyway flyway, FlywayExtension flywayExt) {
     List schemas
-    if (flywayExt.schemaDefaultFirst ?: project.flyway.defaults.schemaDefaultFirst) {
+    if (project.flyway.schemaDefaultFirst) {
       schemas = project.flyway.defaults.schemas + flywayExt.schemas
     } else {
       schemas = flywayExt.schemas + project.flyway.defaults.schemas

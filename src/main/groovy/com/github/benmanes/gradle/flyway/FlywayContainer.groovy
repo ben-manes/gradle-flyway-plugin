@@ -25,6 +25,15 @@ public class FlywayContainer {
   /** The dependencies that all flyway tasks depend on. */
   List<Object> dependsOnTasks = []
 
+  /**
+   * Indicates the order to concatenate the schemas:
+   * <ul>
+   *   <li>true: schemas from the default values will be appended first
+   *   <li>false: the database-specific schemas will be appended first
+   * </ul>
+   */
+  Boolean schemaDefaultFirst = true
+
   /** @see http://www.gradle.org/docs/current/javadoc/org/gradle/api/Task.html#dependencies */
   def dependsOnTasks(Object... paths) {
     dependsOnTasks += paths

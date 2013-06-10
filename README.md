@@ -112,6 +112,7 @@ flyway {
 ```groovy
 flyway {
   dependsOnTasks(compileJava)
+  schemaDefaultFirst = true
   defaults {  
     driver = 'org.h2.Driver'
     user = 'SA'
@@ -134,7 +135,6 @@ flyway {
     cleanOnValidationError = false
     initOnMigrate = false
     placeholders = [ 'aplaceholder': 'value' ]
-    schemaDefaultFirst = true
   }
   databases {
     transactional {
