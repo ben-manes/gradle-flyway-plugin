@@ -99,15 +99,6 @@ public class FlywayExtension {
    */
   Boolean initOnMigrate
 
-  /**
-   * Indicates the order to concatenate the schemas:
-   * <ul>
-   *   <li>true: schemas from the default values will be appended first
-   *   <li>false: the database-specific schemas will be appended first
-   * </ul>
-   */
-  Boolean schemaDefaultFirst
-
   public FlywayExtension() {
     schemas = []
     locations = []

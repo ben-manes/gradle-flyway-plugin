@@ -14,7 +14,7 @@ buildscript {
 }
 
 repositories {
-  mavenCentral()
+//  mavenCentral()
 }
 
 dependencies {
@@ -22,15 +22,16 @@ dependencies {
 }
 
 flyway {
+  schemaDefaultFirst = true
   defaults {
-    schemaGenericFirst = true
+    initOnMigrate = true
   }
   databases {
-    transactional {
+    transaction {
       url = "jdbc:h2:${buildDir}/db/flyway/transaction"
       sqlMigrationPrefix = 'Transaction_V'
     }
-    reporting {
+    report {
       url = "jdbc:h2:${buildDir}/db/flyway/report"
       sqlMigrationPrefix = 'Reporting_V'
     }
