@@ -71,6 +71,11 @@ modifyPom {
         name 'Ben Manes'
         email 'ben.manes@gmail.com'
       }
+      developer {
+        id 'alkamo'
+        name 'Allan Morstein'
+        email 'alkamo@gmail.com'
+      }
     }
   }
 }
