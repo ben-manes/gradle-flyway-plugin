@@ -20,7 +20,7 @@ as for code generating from the schema. See the
 For a single-database environment, only a single database extension needs to be used. For an 
 environment where deployments to multiple databases must be run as part of the release,
 ```defaults``` can be used in addition to ```databases```. For lists, such as ```schemas``` and
-```placeholders```, the a list that appears in both extensions will be combined. In all other 
+```placeholders```, the list that appears in both extensions will be combined. In all other 
 cases, values specified in ```databases``` will take precedence over values in ```defaults```.
 
 

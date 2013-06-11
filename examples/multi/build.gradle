@@ -14,7 +14,7 @@ buildscript {
 }
 
 repositories {
-//  mavenCentral()
+  mavenCentral()
 }
 
 dependencies {
@@ -23,6 +23,7 @@ dependencies {
 
 flyway {
   schemaDefaultFirst = true
+
   defaults {
     initOnMigrate = true
   }

@@ -103,7 +103,6 @@ public class FlywayExtension {
     schemas = []
     locations = []
     placeholders = [:]
-    schemaDefaultFirst = true
   }
 
   public FlywayExtension(String name) {
